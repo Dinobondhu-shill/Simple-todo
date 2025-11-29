@@ -47,8 +47,23 @@ app.get('/', (req :Request, res : Response)=> {
     res.send("Hello!")
 })
 
-app.post('/', (req:Request, res : Response)=>{
-    console.log(req.body);
+app.post('/user', async(req:Request, res : Response)=>{
+    const {name, email, age, phone} = req.body;
+    try {
+        const result = await pool.query(`
+            INSERT INTO users(name, email, age, phone) VALUES($1, $2, $3, $4) RETURNING *`,
+            [name, email, age, phone]
+        );
+        console.log(result)
+        res.send({message: "Data Inserted"})
+        
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+            error: error
+        })
+    }
 
     res.status(201).json({
         success: true,
