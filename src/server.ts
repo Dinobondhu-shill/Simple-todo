@@ -47,29 +47,72 @@ app.get('/', (req :Request, res : Response)=> {
     res.send("Hello!")
 })
 
-app.post('/user', async(req:Request, res : Response)=>{
+// create user 
+app.post('/users', async(req:Request, res : Response)=>{
     const {name, email, age, phone} = req.body;
     try {
         const result = await pool.query(`
             INSERT INTO users(name, email, age, phone) VALUES($1, $2, $3, $4) RETURNING *`,
             [name, email, age, phone]
         );
-        console.log(result)
-        res.send({message: "Data Inserted"})
+       res.status(201).json({
+            success: true,
+            message: "Data inserted successfully",
+            data : result.rows[0]
+        })
+      
         
-    } catch (error) {
+    } catch (error : any) {
         res.status(500).json({
             success: false,
             message: "Internal Server Error",
-            error: error
+            error: error.message
         })
     }
-
-    res.status(201).json({
-        success: true,
-        message: "This post method is working perfectly"
-    })
 })
+
+// get all users 
+app.get('/users', async(req: Request, res : Response)=>{
+    try {
+        const result = await pool.query(`SELECT * FROM users`);
+        res.status(201).json({
+            success: true,
+            message: "User data found",
+            data: result.rows
+        })
+        
+    } catch (error: any) {
+        res.status(404).json({
+            success: false,
+            message: error.message
+
+        })
+    }
+})
+
+// get single user by their id 
+
+app.get('/users/:id', async(req:Request, res : Response)=>{
+    const id = req.params.id
+    try {
+
+        const result = await pool.query(`
+            SELECT * FROM users WHERE id = ($1)
+            `, [id])
+            res.status(201).json({
+                success: true,
+                message: "User found",
+                data : result.rows
+            })
+        
+    } catch (error : any) {
+        res.status(404).json({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
 
 app.listen(port, ()=>{
 console.log(`Server is listening on port ${port}`);
