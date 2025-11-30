@@ -137,6 +137,23 @@ app.put('/users/:id', async (req: Request, res:Response)=>{
     }
 })
 
+// Delete User 
+app.delete('/users/:id', async(req : Request, res : Response)=>{
+    try {
+        const result = await pool.query(`DELETE FROM users WHERE id = $1 RETURNING *`, [req.params.id]);
+        res.status(200).json({
+            success: true,
+            message: "User deleted successfully",
+            data: result.rows[0]
+        })
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        })
+    }
+})
+
 
 app.listen(port, ()=>{
 console.log(`Server is listening on port ${port}`);
