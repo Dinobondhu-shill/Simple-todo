@@ -113,6 +113,30 @@ app.get('/users/:id', async(req:Request, res : Response)=>{
     }
 })
 
+// User update route
+
+app.put('/users/:id', async (req: Request, res:Response)=>{
+    const {name, email, phone,} = req.body;
+ 
+    try {
+
+        const result = await pool.query(`
+            UPDATE users SET name=$1, phone =$2, email=$3 WHERE id= $4 RETURNING *
+            `, [name, phone, email, req.params.id])
+            res.status(201).json({
+                success: true,
+                message: "User Updated Successfully",
+                data : result.rows
+            })
+        
+    } catch (error : any) {
+        res.status(404).json({
+            success: false,
+            message: error.message
+        })
+    }
+})
+
 
 app.listen(port, ()=>{
 console.log(`Server is listening on port ${port}`);
