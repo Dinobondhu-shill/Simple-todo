@@ -180,6 +180,74 @@ app.post('/todos', async(req: Request, res: Response)=>{
 
 })
 
+// get todos 
+app.get('/todos', async(req: Request, res:Response)=>{
+    try {
+        
+        const result = await pool.query(`
+            SELECT * FROM todos
+            `);
+        res.status(202).json({
+            success:true,
+            message: "Todos data fetched successfully",
+            data : result.rows
+        })
+
+    } catch (error:any) {
+       res.status(404).json({
+        success: false,
+        message : error.message
+       }) 
+    }
+})
+
+// Get todos data by user id 
+
+app.get('/todos/:user_id', async (req : Request, res : Response)=>{
+    // console.log(req.params.user_id)
+
+    try {
+        const result = await pool.query(`
+            SELECT * FROM todos WHERE user_id=$1
+            `, [req.params.user_id])
+
+            res.status(200).json({
+                success: true, 
+                Message : "Found specific users todo",
+                data : result.rows
+            })
+    } catch (err : any) {
+        res.status(404).json({
+        success: false,
+        message : err.message
+       }) 
+    }
+
+})
+
+// Update todos 
+app.put('/todos/:id', async(req : Request, res: Response)=>{
+    const {title, description, isCompleted} = req.body
+    try {
+        const result = await pool.query(`
+            UPDATE todos SET title= $1, description=$2, isCompleted=$3 WHERE id=$4 RETURNING *`, [
+                title, description, isCompleted, req.params.id
+            ])
+
+            res.status(201).json({
+                success: true,
+                message : "Todo has been updated",
+                data : {updated_todo : result.rows}
+            })
+    } catch (err : any) {
+        res.status(404).json({
+        success: false,
+        message : err.message
+       }) 
+    }
+
+} )
+
 
 app.listen(port, ()=>{
 console.log(`Server is listening on port ${port}`);
