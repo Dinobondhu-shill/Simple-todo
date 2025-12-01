@@ -47,6 +47,7 @@ app.get('/', (req :Request, res : Response)=> {
     res.send("Hello!")
 })
 
+// ------------>USER ROUTES<-------------------
 // create user 
 app.post('/users', async(req:Request, res : Response)=>{
     const {name, email, age, phone} = req.body;
@@ -152,6 +153,31 @@ app.delete('/users/:id', async(req : Request, res : Response)=>{
             message: "Internal Server Error"
         })
     }
+})
+
+// ------------>TODOS ROUTES<-------------------
+
+// create todos
+app.post('/todos', async(req: Request, res: Response)=>{
+    const {title, description, user_id} = req.body;
+
+    try {
+            const result = await pool.query(`
+              INSERT INTO todos(title, description, user_id) VALUES ($1, $2, $3) RETURNING *`, [title, description, user_id]);
+
+              res.status(201).json({
+                success: true,
+                message : "Todos has been created",
+                data : result.rows[0]
+              })
+    } catch (error :any) {
+        res.status(501).json({
+            success : false,
+            message : error.message
+        })
+    }
+
+
 })
 
 
