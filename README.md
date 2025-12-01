@@ -140,5 +140,5 @@ Feel free to fork and enhance the project. PRs are welcome.
 ---
 
 ## 🧑‍💻 Author
-**Your Name**  
+**Dinobondhu Shill**  
 Backend Developer | MERN Stack | TypeScript
