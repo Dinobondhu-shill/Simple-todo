@@ -248,7 +248,22 @@ app.put('/todos/:id', async(req : Request, res: Response)=>{
 
 } )
 
-
+app.delete('/todos/:id', async(req: Request, res: Response)=>{
+    try {
+        const result = await pool.query(`
+            DELETE FROM todos WHERE id=$1 RETURNING *`, [req.params.id]);
+        res.status(200).json({
+            success: true,
+            message : "Todo has been deleted",
+            data : result.rows[0]
+        })
+    } catch (err : any) {
+        res.status(500).json({
+        success: false,
+        message : err.message
+       }) 
+    }
+})
 app.listen(port, ()=>{
 console.log(`Server is listening on port ${port}`);
 })
